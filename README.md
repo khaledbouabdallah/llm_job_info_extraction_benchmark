@@ -1,8 +1,10 @@
 # LLM Job Extraction Benchmark
 
-A Small Benchmark comparing 6 models (1.7B to 14B qwen3 & Gemini Flash) on real job description parsing. Dual-judge validation, bilingual testing (EN/FR).
+A small benchmark comparing 6 models (1.7B to 14B Qwen3 & Gemini Flash) on real job description parsing. Dual-judge validation, bilingual testing (EN/FR).
 
-The goal is to test if relative small local models are capable of extracting information from real job posts while mainting the acruaccy of larger & cloud models.
+The goal is to test if relatively small local models are capable of extracting information from real job posts while maintaining the accuracy of larger & cloud models.
+
+**Note:** This is a small-scale experiment demonstrating what can be achieved with minimal prompt engineering. Further prompt refinement would likely improve results across all models.
 
 ---
 
@@ -15,7 +17,10 @@ The goal is to test if relative small local models are capable of extracting inf
 - 800-4000 character descriptions
 
 ### Models Tested
-```
+
+**All local models use q4_K_M quantization** for optimal balance between quality and efficiency.
+
+```text
 Local (Ollama):
 ├── qwen3:1.7b-q4_K_M
 ├── qwen3:4b-q4_K_M
@@ -49,8 +54,9 @@ class JobEnrichment(BaseModel):
 - **Two prompts**: Direct vs Examples
 - **840 total evaluations** (6 models × 30 jobs × 2 prompts × 2 judges)
 
-### Hardwere
-- **GPU**: RTX5080
+### Hardware
+
+- **GPU**: RTX 5080
 
 ---
 
@@ -68,32 +74,33 @@ class JobEnrichment(BaseModel):
 ### Key Insights
 
 1. **Simple prompts work better**: Direct instructions outperformed few-shot examples (+0.3 points average)
-   - Exception: Gemini performed slightly better with examples
+   - Exception: `gemini-2.5-flash-lite` performed slightly better with examples
 
 2. **4B models are viable**: `qwen3:4b-instruct-2507` scored within 3% of the 14B model
    - Diminishing returns after 8B parameters
 
 3. **French posts harder**: ~0.5 point drop on average
    - `qwen3:1.7b`: -1.2 points
-   - Gemini: -0.2 points
+   - `gemini-2.5-flash-lite`: -0.2 points
 
 4. **1.7B surprisingly capable**: 7.8/10 quality despite being 8x smaller than 14B
 5. **French vs English**: Models were slightly worse on French (especially the 1.7B)
-6. **Duo Judge Evaluation**: High score correlation between the two judges. open manuall analysis, claude sonnet seems to be harsher than neccecery while gpt-4o being too lean and forgot the mention things. this shows that llm evaluations is limited and should only be used as a hurestic evaluation.
+6. **Dual Judge Evaluation**: High score correlation between the two judges. Upon manual analysis, `claude-sonnet-4-5` seems to be harsher than necessary while `gpt-4o` is too lenient and occasionally forgets to mention issues. This shows that LLM evaluations are limited and should only be used as a heuristic evaluation.
 
 ### Common Errors
 
-**Most frequently missed** (from 680 evaluations), most are secondy info which may be not important (compared to the other infomration for this specific task)
+**Most frequently missed** (from 680 evaluations), most are secondary info which may not be important (compared to the other information for this specific task)
+
 - Team size (4.1%)
 - Reports to (3.1%)
 - Remote work details (2.6%)
 - Salary ranges (1.2%)
 
-**Hallucination rate**: < 0.8% across all models (vey low)
+**Hallucination rate**: < 0.8% across all models (very low)
 
-### Summary of summary:
+### Summary
 
-- Qwen models (starting from the 1.7b quantinzaed variante) showed that they can archive very close results to `gemini-2.5-flash-lite` on this task. the gap can be narrowed with improving the promept & simpling the extraciton into multiple rounds.
+- Qwen models (starting from the 1.7B quantized variant) showed that they can achieve very close results to `gemini-2.5-flash-lite` on this task. The gap can be narrowed with improved prompting & simplifying the extraction into multiple rounds.
 
 ---
 
@@ -239,6 +246,8 @@ python example_usage.py
 | qwen3:14b | 8.42/10 | 4.7s | 8.7 | 9.2 | 8.4 | 9.6 |
 | gemini-flash | **8.65/10** | 1.8s | 8.9 | 9.2 | 8.6 | 9.6 |
 
+![](figs/model_comparison.png)
+
 ### Visualizations
 
 All plots available in `figs/`:
@@ -316,7 +325,8 @@ llm-job-extraction-benchmark/
 - **Small dataset**: 30 jobs (tech-focused)
 - **AI judges**: No human ground truth
 - **Tech sector only**: Patterns may differ in other industries
-- **Prompts Limit**: only two promepts were bechmarked, other variations can change the results.
+- **Prompt Limits**: Only two prompts were benchmarked; other variations can change the results
+- **Minimal prompt engineering**: This experiment demonstrates baseline performance with simple prompts. Iterative prompt refinement would likely improve all models
 
 ---
 
