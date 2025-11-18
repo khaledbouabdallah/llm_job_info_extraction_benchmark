@@ -1,6 +1,6 @@
 # LLM Job Extraction Benchmark
 
-A small benchmark comparing 6 models (1.7B to 14B Qwen3 & Gemini Flash) on real job description parsing. Dual-judge validation, bilingual testing (EN/FR).
+A small benchmark comparing 5 Qwen3 models (1.7B to 14B) + emini-2.5-flash-lite on real job description parsing. Dual-judge validation, bilingual testing (EN/FR).
 
 The goal is to test if relatively small local models are capable of extracting information from real job posts while maintaining the accuracy of larger & cloud models.
 
@@ -66,25 +66,28 @@ class JobEnrichment(BaseModel):
 
 | Category | Model | Score/Metric |
 |----------|-------|-------------|
-| **Best Overall** | `gemini-2.5-flash-lite` | 8.65/10 avg |
-| **Best Local** | `qwen3:14b` | 8.42/10 avg |
-| **Fastest** | `qwen3:1.7b` | ~2.3s per job |
-| **Best Balance** | `qwen3:8b` | 8.28/10, ~3.1s |
+| **Best Overall** | `gemini-2.5-flash-lite` | 8.97/10 avg |
+| **Best Local** | `qwen3:14b` | 8.95/10 avg |
+| **Fastest** | `gemini-2.5-flash-lite` | ~2.0s per job |
+| **Best Balance** | `qwen3:4b-instruct-2507` | 8.72/10, ~3.0s |
 
 ### Key Insights
+
+![](figs/quality_vs_speed.png)
 
 1. **Simple prompts work better**: Direct instructions outperformed few-shot examples (+0.3 points average)
    - Exception: `gemini-2.5-flash-lite` performed slightly better with examples
 
-2. **4B models are viable**: `qwen3:4b-instruct-2507` scored within 3% of the 14B model
+2. **4B models are viable**: `qwen3:4b-instruct-2507` scored within 3% of the 14B model (8.72 vs 8.95)
    - Diminishing returns after 8B parameters
+   - The instruct-tuned variant outperforms the base 4B model (8.72 vs 8.45)
 
 3. **French posts harder**: ~0.5 point drop on average
    - `qwen3:1.7b`: -1.2 points
    - `gemini-2.5-flash-lite`: -0.2 points
 
-4. **1.7B surprisingly capable**: 7.8/10 quality despite being 8x smaller than 14B
-5. **French vs English**: Models were slightly worse on French (especially the 1.7B)
+4. **1.7B surprisingly capable**: 7.79/10 quality despite being 8x smaller than 14B
+5. **French vs English**: Models were slightly worse on French (especially on the 1.7B)
 6. **Dual Judge Evaluation**: High score correlation between the two judges. Upon manual analysis, `claude-sonnet-4-5` seems to be harsher than necessary while `gpt-4o` is too lenient and occasionally forgets to mention issues. This shows that LLM evaluations are limited and should only be used as a heuristic evaluation.
 
 ### Common Errors
@@ -239,12 +242,12 @@ python example_usage.py
 
 | Model | Quality | Speed | Completeness | Accuracy | Specificity | Hallucination |
 |-------|---------|-------|--------------|----------|-------------|---------------|
-| qwen3:1.7b | 7.82/10 | 2.3s | 7.6 | 8.5 | 7.8 | 9.1 |
-| qwen3:4b | 8.09/10 | 2.8s | 8.0 | 8.7 | 8.1 | 9.3 |
-| qwen3:4b-2507 | 8.15/10 | 2.9s | 8.1 | 8.8 | 8.2 | 9.4 |
-| qwen3:8b | 8.28/10 | 3.1s | 8.3 | 8.9 | 8.3 | 9.5 |
-| qwen3:14b | 8.42/10 | 4.7s | 8.7 | 9.2 | 8.4 | 9.6 |
-| gemini-flash | **8.65/10** | 1.8s | 8.9 | 9.2 | 8.6 | 9.6 |
+| qwen3:1.7b | 7.79/10 | 4.8s | 7.2 | 8.1 | 7.6 | 8.3 |
+| qwen3:4b | 8.45/10 | 14.6s | 7.8 | 8.8 | 8.1 | 9.2 |
+| qwen3:4b-2507 | 8.72/10 | 3.0s | 8.3 | 9.1 | 8.5 | 9.1 |
+| qwen3:8b | 8.65/10 | 21.2s | 7.8 | 9.1 | 8.2 | 9.5 |
+| qwen3:14b | 8.95/10 | 18.5s | 8.2 | 9.4 | 8.6 | 9.7 |
+| gemini-flash | **8.97/10** | 2.0s | 8.3 | 9.3 | 8.5 | 9.7 |
 
 ![](figs/model_comparison.png)
 
@@ -266,19 +269,19 @@ All plots available in `figs/`:
 
 **High-volume (1000s jobs/day)**:
 ```python
-model = "qwen3:4b-q4_K_M"  # 8.1/10, 2.8s, runs locally
+model = "qwen3:4b-instruct-2507-q4_K_M"  # 8.72/10, 3.0s, runs locally
 ```
 
 **Quality-critical**:
 ```python
-model = "qwen3:14b-q4_K_M"  # 8.4/10, 4.7s
+model = "qwen3:14b-q4_K_M"  # 8.95/10, 18.5s
 # or
-model = "gemini-2.5-flash-lite"  # 8.65/10, 1.8s (API)
+model = "gemini-2.5-flash-lite"  # 8.97/10, 2.0s (API)
 ```
 
 **Best balance**:
 ```python
-model = "qwen3:8b-q4_K_M"  # 8.28/10, 3.1s
+model = "qwen3:4b-instruct-2507-q4_K_M"  # 8.72/10, 3.0s
 ```
 
 ### Prompt Tips

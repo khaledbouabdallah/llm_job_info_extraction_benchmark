@@ -22,6 +22,8 @@ EXTRACT:
 - experience_years_max: Maximum years if stated
 - seniority_level: Intern/Junior/Mid/Senior
 - key_responsibilities: Main job duties (short phrases)
+- team_size: Number of people in the team if mentioned
+- reports_to: Position this role reports to (e.g., "CTO", "Data Science Manager")
 - concrete_benefits: Specific perks (transport %, salary, etc)
 - education_required: Degree level and field
 - languages: Required languages
@@ -49,6 +51,8 @@ OUTPUT FORMAT:
     "experience_years_max": int or null,
     "seniority_level": "Intern/Junior/Mid/Senior" or null,
     "key_responsibilities": [...],
+    "team_size": int or null,
+    "reports_to": string or null,
     "concrete_benefits": [...],
     "education_required": string or null,
     "languages": [...],
@@ -79,8 +83,6 @@ Source: "3 à 5 ans d'expérience en data science"
   experience_years_max: 5
 
 ✗ BAD:
-  experience_years_min: 3
-  experience_years_max: 5
   required_skills: ["3-5 years data science"]  ← Wrong field
 
 3. RESPONSIBILITIES
